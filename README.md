@@ -4,7 +4,9 @@
 
 **Configuration automatique du linker et du boot pour le RP2040 (Raspberry Pi Pico) en Rust.**
 
-Cette crate permet de gérer sans effort la mise en page de la mémoire et le second étage du bootloader (BOOT2) pour les applications Rust `no_std`. Plus besoin de configurer manuellement votre fichier `memory.x`.
+Cette crate permet de gérer sans effort la mise en page de la mémoire et le second étage du bootloader (BOOT2) pour les applications Rust no_std. Plus besoin de configurer manuellement votre fichier **memory.x**.
+
+✅ Testé avec succès sur Raspberry Pi Pico et RP2040 Zero.
 
 ----
 
@@ -19,11 +21,11 @@ Cette crate permet de gérer sans effort la mise en page de la mémoire et le se
 
 ## 📦 Installation
 
-**Ajoutez ceci à votre fichier `Cargo.toml`** :
+**Ajoutez ceci à votre fichier `Cargo.toml`:** 
 
 ````toml
 [dependencies]
-rp2040-linker = "0.1.0"
+rp2040-linker = "0.1.1"
 🛠 Utilisation
 Dans votre fichier main.rs, importez simplement la crate pour activer l'automatisation :
 ````
@@ -100,9 +102,10 @@ echo "✅ Terminé ! Votre Pico redémarre... "
 
 ````
 **Comment l'utiliser :**
-1.Rendez le script exécutable : chmod +x flash.sh
 
-2.Lancez le flash : ./flash.sh
+1. Rendez le script exécutable : chmod +x flash.sh
+
+2. Lancez le flash : ./flash.sh
 
 ----
 
@@ -149,6 +152,13 @@ Cela permet de maintenir un flux de compilation (pipeline CI/CD) propre tout en 
 # 🛡️ Sécurité & Fiabilité
 
 En centralisant la gestion de la mémoire dans cette crate, vous évitez les erreurs humaines de copier-coller entre vos différents projets. Vous bénéficiez d'une base solide, testée et conforme aux spécifications techniques de Raspberry Pi.
+
+----
+
+# 🔄 Gestion des conflits (Note technique)
+Note : La détection automatique du fichier memory.x local fonctionne principalement lors du développement de la crate ou lors d'une utilisation via un chemin local (path = "...").
+
+En raison de l'isolation de sécurité de Cargo, lorsqu'elle est installée via crates.io, la crate peut ne pas "voir" les fichiers de votre projet parent. Par mesure de sécurité, assurez-vous toujours de supprimer tout fichier memory.x manuel à la racine de votre projet pour garantir que celui de la crate soit utilisé et ne pas avoir des errurs liées innatendues due à un muavais memory.x qui traine.
 
 ----
 
