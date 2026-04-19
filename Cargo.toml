@@ -1,0 +1,42 @@
+[package]
+edition = "2021"
+name = "rp2040-linker"
+version = "0.1.0"
+authors = ["Jorge Andre Castro <georgeandrec@gmail.com>"]
+build = "build.rs"
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+description = "Configuration automatique du linker et du boot (BOOT2) pour RP2040 (Pico 1) en Rust. Infrastructure pure no_std."
+documentation = "https://docs.rs/rp2040-linker"
+readme = "README.md"
+keywords = [
+    "rp2040",
+    "pico",
+    "linker",
+    "no_std",
+    "embedded",
+]
+categories = [
+    "embedded",
+    "no-std",
+    "development-tools",
+]
+license = "GPL-2.0-or-later"
+repository = "https://github.com/jorgeandrecastro/rp2040-linker"
+
+[features]
+default = []
+
+[lib]
+name = "rp2040_linker"
+path = "src/lib.rs"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
