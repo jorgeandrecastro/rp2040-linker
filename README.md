@@ -55,7 +55,6 @@ rustflags = [
   "-C", "link-arg=--nmagic",
 ]
 
-
 [build]
 target = "thumbv6m-none-eabi"
 ````
@@ -108,6 +107,7 @@ echo "✅ Terminé ! Votre Pico redémarre... "
 ----
 
 # 🏗️ Pourquoi utiliser cette crate ?
+
 Le démarrage d'un RP2040 est un processus rigoureux. Le processeur cherche un bloc de démarrage spécifique appelé BOOT2 (Second Stage Bootloader) de 256 octets exactement à l'adresse 0x10000000. Sans une organisation mémoire parfaite, votre programme Rust ne pourra jamais s'exécuter.
 
 rp2040-linker simplifie radicalement ce processus :
@@ -121,17 +121,28 @@ Vérification de Cible : Elle empêche les erreurs de compilation accidentelles 
 ----
 
 # 🔄 Gestion des conflits (Priorité & Shadowing)
+
 **Que se passe-t-il si j'ai déjà un fichier memory.x à la racine de mon projet ?**
 
-Le linker de Rust (rust-lld) est conçu pour utiliser le premier script de mémoire qu'il trouve dans ses chemins de recherche. Si un fichier local est présent, il risque de "masquer" (shadowing) celui de la crate.
+Le linker de Rust (rust-lld) utilise le premier script de mémoire qu'il trouve. Si un fichier local est présent, il risque de "masquer" (shadowing) celui de la crate, ce qui peut empêcher le démarrage du RP2040.
 
-Détection automatique : La crate vérifie la présence d'un fichier memory.x local.
+**🛡️ Détection et Isolation**
+Détection automatique : La crate vérifie la présence d'un fichier memory.x local dans votre projet.
 
-Avertissement (Warning) : Si un conflit est détecté, un message cargo:warning s'affiche durant la compilation :
+Isolation intelligente : Le mécanisme ignore la crate rp2040-linker elle-même lors de sa propre compilation (via CARGO_PKG_NAME). Cela évite les faux positifs pour les contributeurs de la bibliothèque.
+
+Alerte ciblée : L'avertissement ne se déclenche que lorsqu'un projet tiers (votre firmware) possède son propre fichier.
+
+⚠️ Avertissement (Warning)
+Si un conflit est détecté, un message s'affiche durant la compilation :
 
 ⚠️ Un fichier memory.x a été détecté à la racine de votre projet. Il pourrait entrer en conflit avec rp2040-linker.
 
-Résolution : Pour laisser la crate gérer entièrement votre mémoire (mode "Zéro-Config"), il est fortement recommandé de supprimer le fichier memory.x local. Cela garantit que la configuration de la crate passe en priorité absolue.
+**✅ Résolution**
+Pour laisser la crate gérer entièrement votre mémoire (mode "Zéro-Config"), il est fortement recommandé de supprimer le fichier memory.x local. Cela garantit que la configuration optimisée de la crate passe en priorité absolue.
+
+Pourquoi est-ce important ?
+Cela permet de maintenir un flux de compilation (pipeline CI/CD) propre tout en protégeant les développeurs contre les comportements imprévisibles du linker.
 
 ----
 
