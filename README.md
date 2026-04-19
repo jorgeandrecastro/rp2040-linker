@@ -25,7 +25,7 @@ Cette crate permet de gérer sans effort la mise en page de la mémoire et le se
 
 ````toml
 [dependencies]
-rp2040-linker = "0.1.1"
+rp2040-linker = "0.1.2"
 🛠 Utilisation
 Dans votre fichier main.rs, importez simplement la crate pour activer l'automatisation :
 ````
