@@ -1,7 +1,7 @@
 [package]
-edition = "2021"
+edition = "2024"
 name = "rp2040-linker"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Jorge Andre Castro <georgeandrec@gmail.com>"]
 build = "build.rs"
 autolib = false
@@ -24,7 +24,7 @@ categories = [
     "no-std",
     "development-tools",
 ]
-license = "GPL-2.0-or-later"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/jorgeandrecastro/rp2040-linker"
 
 [features]

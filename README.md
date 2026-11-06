@@ -1,5 +1,5 @@
 [![Crates.io](https://img.shields.io/crates/v/rp2040-linker.svg)](https://crates.io/crates/rp2040-linker)
-[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL_2.0_or_later-blue.svg)](https://opensource.org/licenses/GPL-2.0)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20or%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
 # rp2040-linker
 
 **Configuration automatique du linker et du boot pour le RP2040 (Raspberry Pi Pico) en Rust.**
@@ -25,7 +25,7 @@ Cette crate permet de gérer sans effort la mise en page de la mémoire et le se
 
 ````toml
 [dependencies]
-rp2040-linker = "0.1.2"
+rp2040-linker = "0.2.0"
 🛠 Utilisation
 Dans votre fichier main.rs, importez simplement la crate pour activer l'automatisation :
 ````
@@ -162,8 +162,15 @@ En raison de l'isolation de sécurité de Cargo, lorsqu'elle est installée via 
 
 ----
 
-# 🛡 Licence
-Ce projet est sous licence GPL-2.0-or-later.
+## 🛡️ License
+
+Licensed under either of:
+
+    MIT license (http://opensource.org/licenses/MIT)
+
+    Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+
+at your option.
 
 ----
 
