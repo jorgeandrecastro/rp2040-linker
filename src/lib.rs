@@ -8,5 +8,5 @@
 #![forbid(unsafe_code)]
 
 // rp2040-linker
-// Cette crate injecte automatiquement la configuration mémoire pour le Raspberry Pi Pico (RP2040).
-// Usage: use rp2040_linker as _;  n'oublieez pas d'inclure dans votre main.rs pour que ca fonctionne .
+// This crate automatically injects the memory configuration for the Raspberry Pi Pico (RP2040).
+// Usage: use rp2040_linker as _; include this in your main.rs for it to work.

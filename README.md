@@ -2,55 +2,57 @@
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20or%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
 # rp2040-linker
 
-**Configuration automatique du linker et du boot pour le RP2040 (Raspberry Pi Pico) en Rust.**
+**Automatic linker and boot configuration for the RP2040 (Raspberry Pi Pico) in Rust.**
 
-Cette crate permet de gérer sans effort la mise en page de la mémoire et le second étage du bootloader (BOOT2) pour les applications Rust no_std. Plus besoin de configurer manuellement votre fichier **memory.x**.
+This crate makes it easy to manage the memory layout and second-stage bootloader (BOOT2) for `no_std` Rust applications. No need to configure your **memory.x** file manually.
 
-✅ Testé avec succès sur Raspberry Pi Pico et RP2040 Zero.
+✅ Successfully tested with Raspberry Pi Pico and RP2040 Zero.
 
 ----
 
-## 🚀 Points Forts
+## 🚀 Features
 
-* **Zéro Configuration :** Injecte automatiquement un `memory.x` optimisé pour le RP2040 (2 Mo Flash, 264 Ko RAM).
-* **Prêt pour le Boot :** Gère la section `.boot2` à l'adresse correcte (`0x10000000`).
-* **Placement Garanti :** Utilise `INSERT BEFORE .text` pour s'assurer que le bootloader est placé exactement là où le BootROM l'attend.
-* **Compatibilité Totale :** Fonctionne avec `cortex-m-rt`, `embassy-rp`, et `rp2040-hal`.
+* **Zero configuration:** Automatically injects an optimized `memory.x` for the RP2040 (2 MB Flash, 264 KB RAM).
+* **Boot ready:** Handles the `.boot2` section at the correct address (`0x10000000`).
+* **Guaranteed placement:** Uses `INSERT BEFORE .text` to ensure the bootloader is placed exactly where the BootROM expects it.
+* **Broad compatibility:** Works with `cortex-m-rt`, `embassy-rp`, and `rp2040-hal`.
 
 ----
 
 ## 📦 Installation
 
-**Ajoutez ceci à votre fichier `Cargo.toml`:** 
+**Add this to your `Cargo.toml` file:**
 
-````toml
+```toml
 [dependencies]
-rp2040-linker = "0.2.0"
-🛠 Utilisation
-Dans votre fichier main.rs, importez simplement la crate pour activer l'automatisation :
-````
+rp2040-linker = "0.2"
+```
 
-````rust
+## 🛠 Usage
+
+In your `main.rs` file, simply import the crate to enable automation:
+
+```rust
 #![no_std]
 #![no_main]
 
-// La ligne magique indispensable : elle gère la mémoire et les blocs de boot
+// The essential line: it handles memory and boot sections.
 use rp2040_linker as _;
 
 use cortex_m_rt::entry;
 
 #[entry]
 fn main() -> ! {
-    // Votre code pour RP2040 ici...
+    // Your RP2040 code goes here...
     loop {}
 }
+```
 
-````
-**Configuration requise dans .cargo/config.toml**
-Assurez-vous que votre projet utilise les arguments du linker de cortex-m-rt :
+**Required configuration in `.cargo/config.toml`**
 
-````
-Ini, TOML
+Make sure your project uses the linker arguments from `cortex-m-rt`:
+
+```toml
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
 rustflags = [
   "-C", "link-arg=-Tlink.x",
@@ -59,106 +61,111 @@ rustflags = [
 
 [build]
 target = "thumbv6m-none-eabi"
-````
+```
 
 ----
 
-# 🏗 Cartographie Mémoire
-La crate définit la structure suivante :
-````
-Section   Origine      Taille         Description
+# 🏗 Memory Map
 
-BOOT2  0x10000000   256 octets    Second étage du bootloader
-FLASH  0x10000100   2047 Ko       Code application et données
-RAM    0x20000000   264 Ko        Mémoire SRAM système
-````
+The crate defines the following layout:
+
+```
+Section   Origin       Size          Description
+
+BOOT2     0x10000000   256 bytes     Second-stage bootloader
+FLASH     0x10000100   2047 KB       Application code and data
+RAM       0x20000000   264 KB        System SRAM
+```
+
 ----
 
-# ⚡Workflow : Flash Rapide (flash.sh)
-Pour ceux qui utilisent picotool directement, voici un script d'automatisation pour compiler, convertir et flasher votre RP2040 en une seule commande.
+# ⚡Workflow: Quick Flash (`flash.sh`)
 
-**📄 flash.sh**
-Créez ce fichier à la racine de votre projet : 
+For those using `picotool` directly, here is an automation script to build, convert, and flash your RP2040 with a single command.
 
-````
+**📄 `flash.sh`**
+
+Create this file in the root of your project:
+
+```bash
 #!/bin/bash
-# On force le chemin vers Cargo pour les environnements sudo
+# Add Cargo to PATH for sudo environments.
 export PATH="$HOME/.cargo/bin:$PATH"
 
-echo "🦀 Étape 1 : Compilation en mode release..."
-cargo build --release || { echo "❌ Échec de la compilation"; exit 1; }
+echo "🦀 Step 1: Building in release mode..."
+cargo build --release || { echo "❌ Build failed"; exit 1; }
 
-# NOTE : Remplacez 'votre_projet' par le nom de votre binaire dans Cargo.toml
-BINARY_NAME="votre_projet"
+# NOTE: Replace 'your_project' with the name of your binary in Cargo.toml.
+BINARY_NAME="your_project"
 TARGET_PATH="target/thumbv6m-none-eabi/release/$BINARY_NAME"
 
-echo "📦 Étape 2 : Conversion ELF vers UF2 pour RP2040..."
+echo "📦 Step 2: Converting ELF to UF2 for RP2040..."
 picotool uf2 convert -t elf "$TARGET_PATH" firmware.uf2 --family rp2040
 
-echo "⚡ Étape 3 : Flashage du périphérique (nécessite sudo)..."
+echo "⚡ Step 3: Flashing the device (requires sudo)..."
 sudo picotool load firmware.uf2 -x
 
-echo "✅ Terminé ! Votre Pico redémarre... "
+echo "✅ Done! Your Pico is restarting..."
+```
 
-````
-**Comment l'utiliser :**
+**How to use it:**
 
-1. Rendez le script exécutable : chmod +x flash.sh
-
-2. Lancez le flash : ./flash.sh
-
-----
-
-# 🏗️ Pourquoi utiliser cette crate ?
-
-Le démarrage d'un RP2040 est un processus rigoureux. Le processeur cherche un bloc de démarrage spécifique appelé BOOT2 (Second Stage Bootloader) de 256 octets exactement à l'adresse 0x10000000. Sans une organisation mémoire parfaite, votre programme Rust ne pourra jamais s'exécuter.
-
-rp2040-linker simplifie radicalement ce processus :
-
-Infrastructure Invisible : Elle génère et injecte dynamiquement le script de liaison (memory.x) nécessaire lors de la compilation.
-
-Placement BOOT2 Garanti : Grâce à l'instruction INSERT BEFORE .text, elle force le placement du bloc de boot avant votre code applicatif, assurant la compatibilité avec le BootROM.
-
-Vérification de Cible : Elle empêche les erreurs de compilation accidentelles si vous ne ciblez pas l'architecture ARM (thumbv6m-none-eabi).
+1. Make the script executable: `chmod +x flash.sh`
+2. Flash the device: `./flash.sh`
 
 ----
 
-# 🔄 Gestion des conflits (Priorité & Shadowing)
+# 🏗️ Why use this crate?
 
-**Que se passe-t-il si j'ai déjà un fichier memory.x à la racine de mon projet ?**
+Starting an RP2040 is a strict process. The processor looks for a specific 256-byte boot block called BOOT2 at address `0x10000000`. Without a correct memory layout, your Rust program will not run.
 
-Le linker de Rust (rust-lld) utilise le premier script de mémoire qu'il trouve. Si un fichier local est présent, il risque de "masquer" (shadowing) celui de la crate, ce qui peut empêcher le démarrage du RP2040.
+`rp2040-linker` greatly simplifies this process:
 
-**🛡️ Détection et Isolation**
-Détection automatique : La crate vérifie la présence d'un fichier memory.x local dans votre projet.
-
-Isolation intelligente : Le mécanisme ignore la crate rp2040-linker elle-même lors de sa propre compilation (via CARGO_PKG_NAME). Cela évite les faux positifs pour les contributeurs de la bibliothèque.
-
-Alerte ciblée : L'avertissement ne se déclenche que lorsqu'un projet tiers (votre firmware) possède son propre fichier.
-
-⚠️ Avertissement (Warning)
-Si un conflit est détecté, un message s'affiche durant la compilation :
-
-⚠️ Un fichier memory.x a été détecté à la racine de votre projet. Il pourrait entrer en conflit avec rp2040-linker.
-
-**✅ Résolution**
-Pour laisser la crate gérer entièrement votre mémoire (mode "Zéro-Config"), il est fortement recommandé de supprimer le fichier memory.x local. Cela garantit que la configuration optimisée de la crate passe en priorité absolue.
-
-Pourquoi est-ce important ?
-Cela permet de maintenir un flux de compilation (pipeline CI/CD) propre tout en protégeant les développeurs contre les comportements imprévisibles du linker.
+* **Invisible infrastructure:** It generates and injects the `memory.x` linker script required during the build.
+* **Guaranteed BOOT2 placement:** The `INSERT BEFORE .text` instruction places the boot block before your application code, ensuring compatibility with the BootROM.
+* **Target check:** It prevents accidental build errors if you are not targeting the ARM architecture (`thumbv6m-none-eabi`).
 
 ----
 
-# 🛡️ Sécurité & Fiabilité
+# 🔄 Conflict handling (priority and shadowing)
 
-En centralisant la gestion de la mémoire dans cette crate, vous évitez les erreurs humaines de copier-coller entre vos différents projets. Vous bénéficiez d'une base solide, testée et conforme aux spécifications techniques de Raspberry Pi.
+**What if I already have a `memory.x` file in the root of my project?**
+
+Rust's linker (`rust-lld`) uses the first memory script it finds. If a local file is present, it may shadow the one provided by this crate, which can prevent the RP2040 from starting.
+
+**🛡️ Detection and isolation**
+
+* **Automatic detection:** The crate checks for a local `memory.x` file in your project.
+* **Smart isolation:** The mechanism ignores `rp2040-linker` itself when it is being built (using `CARGO_PKG_NAME`). This prevents false positives for contributors to the library.
+* **Targeted warning:** The warning is only emitted when an application project (your firmware) has its own file.
+
+⚠️ **Warning**
+
+If a conflict is detected, a message is displayed during the build:
+
+> ⚠️ A `memory.x` file was detected in the root of your project. It may conflict with `rp2040-linker`.
+
+**✅ Resolution**
+
+To let the crate manage your memory completely (the “zero-config” mode), we strongly recommend removing the local `memory.x` file. This ensures that the crate's optimized configuration takes priority.
+
+**Why is this important?**
+
+It helps keep your build pipeline (CI/CD) clean while protecting developers from unpredictable linker behavior.
 
 ----
 
-# 🔄 Gestion des conflits (Note technique)
-Note : La détection automatique du fichier memory.x local fonctionne principalement lors du développement de la crate ou lors d'une utilisation via un chemin local (path = "...").
+# 🛡️ Security and reliability
 
-En raison de l'isolation de sécurité de Cargo, lorsqu'elle est installée via crates.io, la crate peut ne pas "voir" les fichiers de votre projet parent. Par mesure de sécurité, assurez-vous toujours de supprimer tout fichier memory.x manuel à la racine de votre projet pour garantir que celui de la crate soit utilisé et ne pas avoir des errurs liées innatendues due à un muavais memory.x qui traine.
+By centralizing memory management in this crate, you avoid human copy-and-paste errors across your projects. You benefit from a solid foundation that has been tested and conforms to Raspberry Pi's technical specifications.
+
+----
+
+# 🔄 Conflict handling (technical note)
+
+Note: Automatic detection of a local `memory.x` file works primarily when developing the crate or when using it through a local path (`path = "..."`).
+
+Due to Cargo's security isolation, when installed from crates.io the crate may not be able to “see” files in your parent project. As a precaution, always remove any manually created `memory.x` file from the root of your project to ensure the crate's file is used and to avoid unexpected errors caused by an incorrect `memory.x` file.
 
 ----
 
@@ -174,7 +181,6 @@ at your option.
 
 ----
 
-# 🦅 À propos
+# 🦅 About
 
-Développé par Jorge Andre Castro
-
+Developed by Jorge Andre Castro

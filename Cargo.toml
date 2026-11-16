@@ -1,7 +1,7 @@
 [package]
 edition = "2024"
 name = "rp2040-linker"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Jorge Andre Castro <georgeandrec@gmail.com>"]
 build = "build.rs"
 autolib = false
@@ -9,7 +9,7 @@ autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-description = "Configuration automatique du linker et du boot (BOOT2) pour RP2040 (Pico 1) en Rust. Infrastructure pure no_std."
+description = "Automatic linker and boot (BOOT2) configuration for RP2040 (Pico 1) in Rust. Pure no_std infrastructure."
 documentation = "https://docs.rs/rp2040-linker"
 readme = "README.md"
 keywords = [

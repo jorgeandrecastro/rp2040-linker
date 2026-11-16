@@ -8,35 +8,33 @@ use std::fs;
 use std::path::PathBuf;
 
 
-/// Le script de compilation pour `rp2040-linker`.
-/// 
-/// Ce script automatise l'injection du fichier `memory.x` dans le processus 
-/// de liaison (linkage) du projet utilisateur.
+/// The build script for `rp2040-linker`.
+///
+/// This script automatically injects the `memory.x` file into the user's
+/// project linking process.
 fn main() {
-    // Récupère le dossier de sortie spécifique au build actuel (géré par Cargo)
-    let out = PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR non défini"));
+    // Retrieve the output directory for the current build (managed by Cargo).
+    let out = PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR is not set"));
     let memory_x_path = out.join("memory.x");
-    // 1. Écrit le fichier memory.x contenu dans la crate vers le dossier de build.
-    // Cela permet d'avoir une configuration mémoire "standard" sans effort.
+    // 1. Write the crate's memory.x file to the build directory.
+    // This provides a standard memory configuration with no extra setup.
     fs::write(&memory_x_path, include_bytes!("memory.x"))
-        .expect("Impossible d'écrire le fichier memory.x");
+        .expect("Failed to write memory.x");
 
-    // 2. Ajoute le dossier 'out' au chemin de recherche du linker.
-    // C'est ce qui permet au linker de trouver automatiquement notre memory.x.
+    // 2. Add the output directory to the linker's search path.
+    // This lets the linker find our memory.x automatically.
     println!("cargo:rustc-link-search={}", out.display());
 
-    // 3. Instruction de surveillance pour Cargo :
-    // On ne recompile que si le script de build ou le fichier memory.x change.
+    // 3. Tell Cargo to rerun the build script only if build.rs or memory.x changes.
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=memory.x");
 
-    //4. Détection de conflit :
-    // On n'affiche l'avertissement QUE si on est dans un projet utilisateur.
-    //Si on compile la crate rp2040-linker elle-même, on ignore.
+    // 4. Detect conflicts:
+    // Only warn for user projects, not when building rp2040-linker itself.
     let pkg_name = env::var("CARGO_PKG_NAME").unwrap_or_default();
     let project_dir = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
-    
+
     if pkg_name != "rp2040-linker" && project_dir.join("memory.x").exists() {
-        println!("cargo:warning=⚠️ Un fichier memory.x a été détecté à la racine de votre projet. Il pourrait entrer en conflit avec rp2040-linker.");
+        println!("cargo:warning=⚠️ A memory.x file was detected in the root of your project. It may conflict with rp2040-linker.");
     }
 }

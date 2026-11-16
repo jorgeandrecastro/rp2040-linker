@@ -1,4 +1,4 @@
-/* memory.x pour RP2040 */
+/* memory.x for RP2040 */
 MEMORY
 {
     BOOT2 : ORIGIN = 0x10000000, LENGTH = 0x100
