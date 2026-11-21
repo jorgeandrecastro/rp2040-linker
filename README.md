@@ -2,6 +2,8 @@
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20or%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
 # rp2040-linker
 
+**Stable release: 1.0.0**
+
 **Automatic linker and boot configuration for the RP2040 (Raspberry Pi Pico) in Rust.**
 
 This crate makes it easy to manage the memory layout and second-stage bootloader (BOOT2) for `no_std` Rust applications. No need to configure your **memory.x** file manually.
@@ -25,7 +27,7 @@ This crate makes it easy to manage the memory layout and second-stage bootloader
 
 ```toml
 [dependencies]
-rp2040-linker = "0.2"
+rp2040-linker = "1.0.0"
 ```
 
 ## 🛠 Usage
